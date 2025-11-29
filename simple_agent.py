@@ -10,7 +10,7 @@ Usage:
     python simple_agent.py
 
 Requirements:
-    pip install groq python-dotenv
+    pip install groq python-dotenv tavily-python
 """
 
 import os
@@ -25,10 +25,43 @@ load_dotenv()
 # TOOLS: Functions the agent can call
 # =============================================================================
 
+def tavily_search(query: str, max_results: int = 5) -> str:
+    """Search the web using Tavily API."""
+    try:
+        from tavily import TavilyClient
+        
+        api_key = os.getenv("TAVILY_API_KEY")
+        if not api_key:
+            return "ERROR: TAVILY_API_KEY not found in environment variables"
+        
+        client = TavilyClient(api_key=api_key)
+        response = client.search(query=query, max_results=max_results)
+        
+        # Format results nicely
+        if "results" in response:
+            formatted_results = []
+            for result in response["results"]:
+                formatted_results.append({
+                    "title": result.get("title", "No title"),
+                    "url": result.get("url", "No URL"),
+                    "content": result.get("content", "")[:200] + "..." if len(result.get("content", "")) > 200 else result.get("content", "")
+                })
+            return json.dumps(formatted_results, indent=2)
+        else:
+            return json.dumps(response, indent=2)
+    except ImportError:
+        return "ERROR: tavily package not installed. Run: pip install tavily-python"
+    except Exception as e:
+        return f"ERROR: {str(e)}"
+
 TOOLS = {
     "search": {
-        "description": "Search for information about a topic",
+        "description": "Search for information about a topic (mock search - use tavily_search for real results)",
         "function": lambda topic: f"Information about {topic}: [Mock search result]"
+    },
+    "tavily_search": {
+        "description": "Search the web for current information using Tavily. Use this for real-time web searches. Takes 'query' (required) and optional 'max_results' (default 5).",
+        "function": tavily_search
     },
     "calculate": {
         "description": "Calculate a math expression",
@@ -49,7 +82,7 @@ class SimpleAgent:
         self.model = "openai/gpt-oss-120b"
         self.memory = []  # Conversation history
         
-    def run(self, goal: str, max_iterations: int = 5) -> str:
+    def run(self, goal: str, max_iterations: int = 10) -> str:
         """Main agent loop with SPOAR pattern."""
         
         print(f"\n{'='*60}")
@@ -142,19 +175,28 @@ Rules:
         response = self.llm.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": "You are a planning agent. Always respond with valid JSON only."},
+                {"role": "system", "content": "You are a planning agent. Always respond with valid JSON only. Never include any text before or after the JSON."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.3
         )
         
-        # Parse response
-        plan = self._parse_json(response.choices[0].message.content)
+        # Parse response with error handling
+        raw_content = response.choices[0].message.content
+        if not raw_content or not raw_content.strip():
+            print(f"⚠️  Warning: Empty response from LLM, using fallback")
+            return {
+                "action": "COMPLETE",
+                "reasoning": "LLM returned empty response",
+                "answer": "I encountered an error processing your request. Please try again."
+            }
+        
+        plan = self._parse_json(raw_content)
         
         self._log_phase("🧠 PLAN", {
-            "action": plan["action"],
+            "action": plan.get("action", "UNKNOWN"),
             "tool": plan.get("tool", "N/A"),
-            "reasoning": plan["reasoning"][:80] + "..."
+            "reasoning": (plan.get("reasoning", "No reasoning provided")[:80] + "...") if plan.get("reasoning") else "No reasoning provided"
         })
         
         return plan
@@ -162,10 +204,13 @@ Rules:
     def _act(self, plan: Dict[str, Any]) -> Any:
         """ACT: Execute the planned action."""
         
-        if plan["action"] != "USE_TOOL":
+        if plan.get("action") != "USE_TOOL":
             return None
         
-        tool_name = plan["tool"]
+        tool_name = plan.get("tool")
+        if not tool_name:
+            return "ERROR: No tool specified in plan"
+        
         args = plan.get("args", {})
         
         # Execute tool
@@ -216,6 +261,7 @@ In 1-2 sentences, reflect on:
 1. Did this action help progress toward the goal?
 2. What should happen next?
 
+
 Be brief and actionable."""
         
         response = self.llm.chat.completions.create(
@@ -242,21 +288,44 @@ Be brief and actionable."""
         print()
     
     def _parse_json(self, text: str) -> Dict[str, Any]:
-        """Parse JSON from LLM response."""
+        """Parse JSON from LLM response with robust error handling."""
+        if not text or not text.strip():
+            raise ValueError("Empty response from LLM")
+        
         # Remove markdown code blocks if present
         if "```json" in text:
             text = text.split("```json")[1].split("```")[0]
         elif "```" in text:
             text = text.split("```")[1].split("```")[0]
         
-        return json.loads(text.strip())
+        text = text.strip()
+        
+        # Try to find JSON object in the text if it's not pure JSON
+        if not text.startswith("{"):
+            # Look for first { and last }
+            start_idx = text.find("{")
+            end_idx = text.rfind("}")
+            if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+                text = text[start_idx:end_idx + 1]
+        
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError as e:
+            print(f"⚠️  JSON Parse Error: {str(e)}")
+            print(f"⚠️  Raw response: {text[:200]}...")
+            # Return a safe fallback
+            return {
+                "action": "COMPLETE",
+                "reasoning": f"Failed to parse LLM response: {str(e)}",
+                "answer": "I encountered an error processing the response. Please try rephrasing your question."
+            }
 
 # =============================================================================
 # USAGE
 # =============================================================================
 
 if __name__ == "__main__":
-    # Check for API key
+    # Check for API keys
     if not os.getenv("GROQ_API_KEY"):
         print("\n❌ Error: GROQ_API_KEY not found!")
         print("Please create a .env file with your Groq API key:")
@@ -264,10 +333,18 @@ if __name__ == "__main__":
         print("Get your key at: https://console.groq.com/keys")
         exit(1)
     
+    # Note: TAVILY_API_KEY is optional - tavily_search tool will show error if not set
+    if not os.getenv("TAVILY_API_KEY"):
+        print("\n⚠️  Warning: TAVILY_API_KEY not found!")
+        print("Tavily search tool will not work. Add to .env file:")
+        print("  TAVILY_API_KEY=your-tavily-key-here")
+        print("Get your key at: https://tavily.com")
+        print()
+    
     agent = SimpleAgent()
     
     # Test with a simple goal
-    answer = agent.run("What is 25 * 4 + 100?")
+    answer = agent.run("Ambani Adani Bill Gates Jeff Bezos Elon Musk - tell me who is the richest person among these five in the world?")
     
     print(f"\n{'='*60}")
     print(f"FINAL ANSWER: {answer}")
