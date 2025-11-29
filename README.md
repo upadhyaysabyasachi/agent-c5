@@ -1,4 +1,4 @@
-# AI Agent Development: Student Guide
+# AI Agent Development: Guide
 
 A comprehensive hands-on guide to building AI agents from scratch.
 
