@@ -1,0 +1,10 @@
+[
+  {
+    "phase": "COMPLETE",
+    "data": {
+      "action": "COMPLETE",
+      "answer": "An AI agent is an autonomous system that can perceive its environment, make decisions, and take actions to achieve specific goals. Unlike simple chatbots that just respond to queries, agents can use tools, maintain memory across interactions, and reason through multi-step problems. The key characteristics of an agent include: autonomy (operating without constant human intervention), reactivity (responding to changes in the environment), proactivity (taking initiative to achieve goals), and social ability (interacting with other agents or humans). Modern AI agents typically use Large Language Models (LLMs) as their reasoning engine, combined with tools, memory systems, and structured prompts."
+    },
+    "timestamp": "2025-11-30T16:43:10.042053"
+  }
+]

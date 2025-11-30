@@ -1,0 +1,5 @@
+groq
+supabase
+openai
+python-dotenv
+tavily-python

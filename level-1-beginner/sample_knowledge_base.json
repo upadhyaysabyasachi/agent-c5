@@ -1,0 +1,124 @@
+[
+    {
+      "id": 1,
+      "title": "What is an AI Agent?",
+      "content": "An AI agent is an autonomous system that can perceive its environment, make decisions, and take actions to achieve specific goals. Unlike simple chatbots that just respond to queries, agents can use tools, maintain memory across interactions, and reason through multi-step problems. The key characteristics of an agent include: autonomy (operating without constant human intervention), reactivity (responding to changes in the environment), proactivity (taking initiative to achieve goals), and social ability (interacting with other agents or humans). Modern AI agents typically use Large Language Models (LLMs) as their reasoning engine, combined with tools, memory systems, and structured prompts.",
+      "tags": ["agents", "basics", "AI", "LLM", "autonomous"],
+      "difficulty": "beginner",
+      "source": "AI Fundamentals Course"
+    },
+    {
+      "id": 2,
+      "title": "The Agent Loop: SENSE-PLAN-ACT-OBSERVE-REFLECT",
+      "content": "The core of an AI agent is the reasoning loop, often called the agent loop. This consists of five phases: SENSE (gather information about the current state and context), PLAN (use the LLM to decide what action to take next), ACT (execute the chosen action, typically by calling a tool), OBSERVE (record and analyze the results of the action), and REFLECT (evaluate progress toward the goal and determine if adjustments are needed). This cycle repeats until the goal is achieved or a maximum number of iterations is reached. The loop enables agents to handle complex, multi-step tasks that require reasoning and adaptation.",
+      "tags": ["agents", "loop", "reasoning", "OODA", "planning"],
+      "difficulty": "intermediate",
+      "source": "Agent Architecture Guide"
+    },
+    {
+      "id": 3,
+      "title": "Tools: Extending Agent Capabilities",
+      "content": "Tools are functions that agents can call to interact with the external world beyond text generation. Examples include: search engines (find information online), calculators (perform math operations), APIs (interact with external services), databases (query and store data), code interpreters (execute code), and file systems (read/write files). The LLM decides which tool to use based on the task at hand. Tool definitions include a name, description, and parameter schema. When the LLM wants to use a tool, it outputs a structured format specifying the tool name and arguments, which the agent framework then executes.",
+      "tags": ["tools", "agents", "functions", "APIs", "capabilities"],
+      "difficulty": "intermediate",
+      "source": "Tool Integration Manual"
+    },
+    {
+      "id": 4,
+      "title": "RAG: Retrieval Augmented Generation",
+      "content": "RAG (Retrieval Augmented Generation) is a technique that combines information retrieval with language model generation. The process works in three steps: First, the user query is converted into a vector embedding. Second, this embedding is used to search a vector database for semantically similar content. Third, the retrieved content is provided as context to the LLM, which generates a response grounded in this information. RAG solves the knowledge cutoff problem of LLMs and reduces hallucinations by grounding responses in actual documents. Key components include an embedding model, a vector database (like Pinecone, Weaviate, or pgvector), and a retrieval strategy.",
+      "tags": ["RAG", "retrieval", "generation", "embeddings", "vector search"],
+      "difficulty": "intermediate",
+      "source": "RAG Implementation Guide"
+    },
+    {
+      "id": 5,
+      "title": "Agent Memory Systems",
+      "content": "Agents use memory to maintain context across interactions and sessions. There are several types of memory: Short-term memory holds the current conversation context and recent actions within a session. Long-term memory stores facts, user preferences, and learned information that persists across sessions. Episodic memory records specific past interactions that can be retrieved when relevant. Working memory contains the current context being processed by the agent. Implementing memory often involves vector databases for semantic search, key-value stores for structured data, and careful design of what to remember vs. forget.",
+      "tags": ["memory", "agents", "context", "persistence", "state"],
+      "difficulty": "intermediate",
+      "source": "Memory Systems Architecture"
+    },
+    {
+      "id": 6,
+      "title": "Prompt Engineering for Agents",
+      "content": "Effective agent prompts have several components: A system prompt that defines the agent's role, capabilities, and behavior guidelines. Tool descriptions that help the LLM understand available actions. Output format specifications (often JSON) that ensure structured, parseable responses. Few-shot examples showing correct behavior. Context injection for user information, conversation history, and retrieved content. Best practices include being specific about expected outputs, providing clear action type definitions, including reasoning requirements, and handling edge cases explicitly.",
+      "tags": ["prompts", "engineering", "LLM", "instructions", "format"],
+      "difficulty": "intermediate",
+      "source": "Prompt Engineering Handbook"
+    },
+    {
+      "id": 7,
+      "title": "Vector Embeddings Explained",
+      "content": "Vector embeddings are numerical representations of text (or other data) that capture semantic meaning. Words, sentences, or documents with similar meanings have embeddings that are close together in vector space. Popular embedding models include OpenAI's text-embedding-3-small, Sentence Transformers, and Cohere embeddings. The process: text is passed through an embedding model, which outputs a fixed-size vector (e.g., 1536 dimensions). These vectors enable semantic search by comparing cosine similarity between query and document embeddings. Embeddings are fundamental to RAG systems and semantic memory.",
+      "tags": ["embeddings", "vectors", "semantic", "similarity", "representation"],
+      "difficulty": "advanced",
+      "source": "Embeddings Deep Dive"
+    },
+    {
+      "id": 8,
+      "title": "Agent Evaluation and Testing",
+      "content": "Evaluating agents requires measuring multiple dimensions: Task completion rate (did the agent achieve the goal?), efficiency (how many steps/tokens were used?), accuracy (were the responses correct?), and safety (did the agent avoid harmful actions?). Testing strategies include unit tests for individual tools, integration tests for the agent loop, and evaluation datasets with expected outputs. Frameworks like RAGAS can evaluate RAG quality. For production, monitoring and logging are essential to track agent behavior, identify failure modes, and improve performance over time.",
+      "tags": ["evaluation", "testing", "metrics", "quality", "monitoring"],
+      "difficulty": "advanced",
+      "source": "Agent Testing Framework"
+    },
+    {
+      "id": 9,
+      "title": "Building Agents with OpenAI Function Calling",
+      "content": "OpenAI's function calling feature enables structured tool use by LLMs. You define functions with JSON schemas describing their parameters. When the model determines a function should be called, it returns a structured JSON object with the function name and arguments. Your code executes the function and returns the result to continue the conversation. This creates a reliable agent loop: user input → LLM decides action → function executes → result feeds back to LLM → final response. Function calling is more reliable than asking the LLM to output JSON in its text response.",
+      "tags": ["OpenAI", "function calling", "tools", "API", "implementation"],
+      "difficulty": "intermediate",
+      "source": "OpenAI Agents Tutorial"
+    },
+    {
+      "id": 10,
+      "title": "Error Handling and Retry Logic in Agents",
+      "content": "Robust agents must handle failures gracefully. Common error types include: tool execution failures (API timeouts, invalid inputs), LLM parsing errors (malformed JSON outputs), rate limits, and context length exceeded. Strategies include: retry with exponential backoff, fallback to alternative tools, graceful degradation (return partial results), and explicit error reporting to the user. The agent loop should track failed attempts and adjust strategy accordingly. Logging errors helps identify patterns and improve reliability.",
+      "tags": ["errors", "retry", "reliability", "fallback", "robustness"],
+      "difficulty": "advanced",
+      "source": "Production Agent Patterns"
+    },
+    {
+      "id": 11,
+      "title": "Chain of Thought Reasoning",
+      "content": "Chain of Thought (CoT) prompting encourages LLMs to show their reasoning step-by-step before reaching a conclusion. This improves accuracy on complex tasks by making the reasoning process explicit. In agents, CoT can be implemented by asking the LLM to explain its reasoning before choosing an action, or by including a 'thinking' field in the output schema. Benefits include better debugging (you can see why decisions were made), improved accuracy on multi-step problems, and more interpretable agent behavior.",
+      "tags": ["CoT", "reasoning", "prompting", "thinking", "explanation"],
+      "difficulty": "intermediate",
+      "source": "Advanced Prompting Techniques"
+    },
+    {
+      "id": 12,
+      "title": "Multi-Agent Systems",
+      "content": "Multi-agent systems involve multiple AI agents working together, each with specialized roles. Examples include: a researcher agent that finds information, a writer agent that drafts content, and an editor agent that reviews and improves. Agents can communicate through shared memory, message passing, or a central orchestrator. Benefits include task decomposition, specialization, and parallel processing. Challenges include coordination, conflict resolution, and managing complexity. Frameworks like AutoGen and CrewAI facilitate multi-agent development.",
+      "tags": ["multi-agent", "collaboration", "orchestration", "specialization", "architecture"],
+      "difficulty": "advanced",
+      "source": "Multi-Agent Design Patterns"
+    },
+    {
+      "id": 13,
+      "title": "LLM Context Windows and Management",
+      "content": "LLMs have limited context windows (the maximum tokens they can process at once). GPT-4o has 128K tokens, Claude 3 has 200K tokens. Managing context is crucial for agents: conversation history grows over time, retrieved documents add tokens, and tool results consume space. Strategies include: summarizing old conversation turns, selecting only the most relevant retrieved chunks, truncating tool outputs, and using hierarchical memory (store details externally, keep summaries in context). Exceeding the context window causes errors or truncated inputs.",
+      "tags": ["context", "tokens", "window", "management", "limits"],
+      "difficulty": "intermediate",
+      "source": "Context Management Guide"
+    },
+    {
+      "id": 14,
+      "title": "Observability and Logging for Agents",
+      "content": "Observability means understanding what your agent is doing internally. Key practices: Log each phase of the agent loop (SENSE, PLAN, ACT, OBSERVE, REFLECT). Include timestamps for performance analysis. Track token usage and costs. Record tool inputs and outputs. Store the full conversation for debugging. Use structured logging (JSON) for easy querying. Tools like LangSmith, Weights & Biases, and custom dashboards can visualize agent traces. Good observability helps identify bottlenecks, debug failures, and improve agent performance.",
+      "tags": ["observability", "logging", "debugging", "monitoring", "traces"],
+      "difficulty": "intermediate",
+      "source": "Agent Observability Handbook"
+    },
+    {
+      "id": 15,
+      "title": "Safety and Guardrails for AI Agents",
+      "content": "Agents need guardrails to ensure safe operation. Techniques include: input validation (reject harmful queries), output filtering (scan responses for unsafe content), tool permissions (limit which tools can be used), rate limiting (prevent runaway loops), human-in-the-loop (require approval for sensitive actions), and sandboxing (run code in isolated environments). The principle of least privilege applies: give agents only the capabilities they need. Audit logs help track actions for compliance and incident investigation.",
+      "tags": ["safety", "guardrails", "security", "permissions", "validation"],
+      "difficulty": "advanced",
+      "source": "AI Safety Best Practices"
+    }
+  ]
+  
+  
