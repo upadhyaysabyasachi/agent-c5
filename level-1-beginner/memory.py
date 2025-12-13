@@ -33,9 +33,19 @@ class Memory:
             raise RuntimeError(f"Failed to generate embedding: {str(e)}")
 
     def add_memory(self, user_question: str, agent_answer: str):
-        """Store a Q&A pair in the database with error handling."""
+        """Store a Q&A pair in the database with duplicate detection."""
         try:
             content = f"Question: {user_question}\nAnswer: {agent_answer}"
+
+            # Check for duplicates using high similarity threshold
+            existing_memories = self.search_memory(user_question, threshold=0.90)
+
+            if existing_memories:
+                # Very similar memory already exists, skip insertion
+                print(f"💭 Similar memory exists, skipping: {user_question[:30]}...")
+                return
+
+            # No duplicate found, proceed with insertion
             embedding = self.get_embedding(content)
 
             data = {
