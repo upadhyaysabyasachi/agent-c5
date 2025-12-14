@@ -1,0 +1,27 @@
+# Core Dependencies
+groq
+python-dotenv
+rich
+
+# Web Search
+tavily-python
+
+# Database
+supabase
+
+# Voice Integration
+elevenlabs
+
+# Audio Processing (for voice I/O) - Optional
+# Note: pyaudio requires portaudio to be installed separately
+# On macOS: brew install portaudio
+# On Ubuntu/Debian: sudo apt-get install portaudio19-dev
+# On Fedora: sudo dnf install portaudio-devel
+# pyaudio  # Uncomment after installing portaudio system library
+
+# Alternative: Use sounddevice or simpleaudio for audio playback
+# sounddevice  # Simpler alternative to pyaudio
+
+# Additional utilities
+requests
+

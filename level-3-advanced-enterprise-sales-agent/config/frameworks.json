@@ -1,0 +1,117 @@
+{
+  "BANT": {
+    "name": "BANT Framework",
+    "description": "Budget, Authority, Need, Timeline - Classic qualification framework",
+    "criteria": {
+      "Budget": {
+        "question": "Do they have budget allocated for this solution?",
+        "weight": 25,
+        "indicators": [
+          "Mentioned budget range",
+          "Discussed pricing",
+          "Has allocated funds",
+          "Approved budget for similar projects"
+        ]
+      },
+      "Authority": {
+        "question": "Is the contact a decision maker?",
+        "weight": 25,
+        "indicators": [
+          "VP or C-level title",
+          "Director level",
+          "Makes purchasing decisions",
+          "Has final approval authority"
+        ]
+      },
+      "Need": {
+        "question": "Do they have a clear need or pain point?",
+        "weight": 25,
+        "indicators": [
+          "Expressed specific pain points",
+          "Has current challenges",
+          "Looking for solutions",
+          "Active problem to solve"
+        ]
+      },
+      "Timeline": {
+        "question": "Do they have a timeline for implementation?",
+        "weight": 25,
+        "indicators": [
+          "Specific deadline mentioned",
+          "Urgent need",
+          "Q1/Q2/Q3/Q4 timeline",
+          "Project start date discussed"
+        ]
+      }
+    },
+    "qualification_threshold": 75
+  },
+  "MEDDIC": {
+    "name": "MEDDIC Framework",
+    "description": "Metrics, Economic Buyer, Decision Criteria, Decision Process, Identify Pain, Champion",
+    "criteria": {
+      "Metrics": {
+        "question": "Can we measure the business impact?",
+        "weight": 15,
+        "indicators": [
+          "ROI calculations discussed",
+          "KPIs identified",
+          "Success metrics defined",
+          "Business impact measurable"
+        ]
+      },
+      "Economic Buyer": {
+        "question": "Have we identified the economic buyer?",
+        "weight": 20,
+        "indicators": [
+          "Budget holder identified",
+          "CFO or finance involved",
+          "Approval authority confirmed",
+          "Economic decision maker engaged"
+        ]
+      },
+      "Decision Criteria": {
+        "question": "Do we know their decision criteria?",
+        "weight": 15,
+        "indicators": [
+          "Evaluation criteria shared",
+          "Must-have features listed",
+          "Selection process known",
+          "Decision factors identified"
+        ]
+      },
+      "Decision Process": {
+        "question": "Do we understand their decision process?",
+        "weight": 15,
+        "indicators": [
+          "Steps in process outlined",
+          "Timeline for decisions",
+          "Stakeholders identified",
+          "Approval workflow known"
+        ]
+      },
+      "Identify Pain": {
+        "question": "Have we identified their pain points?",
+        "weight": 20,
+        "indicators": [
+          "Specific problems discussed",
+          "Pain points documented",
+          "Current challenges identified",
+          "Impact of problems understood"
+        ]
+      },
+      "Champion": {
+        "question": "Do we have an internal champion?",
+        "weight": 15,
+        "indicators": [
+          "Internal advocate identified",
+          "Champion actively supporting",
+          "Internal sponsor engaged",
+          "Advocate promoting solution"
+        ]
+      }
+    },
+    "qualification_threshold": 80
+  }
+}
+
