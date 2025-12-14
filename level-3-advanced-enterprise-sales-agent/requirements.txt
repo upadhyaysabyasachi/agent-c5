@@ -24,4 +24,5 @@ elevenlabs
 
 # Additional utilities
 requests
+deepgram-sdk
 

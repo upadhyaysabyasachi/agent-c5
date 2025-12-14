@@ -10,7 +10,6 @@ import threading
 import time
 from typing import Optional, Callable, Generator
 from dotenv import load_dotenv
-from deepgram import Deepgram
 
 try:
     from elevenlabs import ElevenLabs
@@ -41,6 +40,16 @@ try:
     SIMPLEAUDIO_AVAILABLE = True
 except ImportError:
     SIMPLEAUDIO_AVAILABLE = False
+
+# Deepgram (optional - for future STT integration)
+try:
+    from deepgram import Deepgram
+    DEEPGRAM_AVAILABLE = True
+except (ImportError, Exception) as e:
+    DEEPGRAM_AVAILABLE = False
+    Deepgram = None  # Placeholder for type hints
+    if not isinstance(e, ImportError):
+        print(f"⚠️  Warning: Deepgram import failed: {e}")
 
 load_dotenv()
 
@@ -110,8 +119,15 @@ class VoiceTool:
             print("⚠️  No audio playback libraries available. Audio will be generated but not played.")
             print("   Install one of: pyaudio (requires portaudio), sounddevice, or simpleaudio")
 
-        
-        self.deepgram = Deepgram(os.getenv("DEEPGRAM_API_KEY"))
+        # Initialize Deepgram (optional - for future STT integration)
+        self.deepgram = None
+        if DEEPGRAM_AVAILABLE:
+            deepgram_key = os.getenv("DEEPGRAM_API_KEY")
+            if deepgram_key:
+                try:
+                    self.deepgram = Deepgram(deepgram_key)
+                except Exception as e:
+                    print(f"⚠️  Deepgram initialization warning: {e}")
     
     def text_to_speech_stream(self, text: str) -> Generator[bytes, None, None]:
         """
@@ -233,29 +249,44 @@ class VoiceTool:
             duration: How long to listen (seconds)
         """
         # Placeholder implementation
-        dg_connection = self.deepgram.transcription.live({
-            'punctuate': True,
-            'interim_results': False
-        })
-        # In production, integrate with a speech-to-text service
+        if self.deepgram:
+            try:
+                dg_connection = self.deepgram.transcription.live({
+                    'punctuate': True,
+                    'interim_results': False
+                })
+                # In production, integrate with a speech-to-text service
+                print("🎤 Listening for speech... (STT integration needed)")
+                
+                async def on_message(transcript):
+                    text = transcript['channel']['alternatives'][0]['transcript']
+                    if text:
+                        callback(text)
+                    
+                dg_connection.registerHandler('transcriptReceived', on_message)
+                time.sleep(1)
+                callback("Mock transcription - integrate STT service here")
+                return
+            except Exception as e:
+                print(f"⚠️  Deepgram error: {e}")
+        
+        # Fallback if Deepgram not available
         print("🎤 Listening for speech... (STT integration needed)")
         print("   Note: For full STT, integrate with Deepgram, AssemblyAI, or OpenAI Whisper")
-        
-        # Mock implementation - in production, use actual STT
-        async def on_message(transcript):
-            text = transcript['channel']['alternatives'][0]['transcript']
-            if text:
-                callback(text)
-            
-        dg_connection.registerHandler('transcriptReceived', on_message)
         time.sleep(1)
+        callback("Mock transcription - integrate STT service here")
     
     def _handle_deepgram_transcription(self, dg_connection):
         """Handle Deepgram transcription."""
-        for chunk in dg_connection:
-            if chunk.type == "Result":
-                print(chunk.channel.alternatives[0].transcript)
-                return chunk.channel.alternatives[0].transcript
+        if not self.deepgram:
+            return None
+        try:
+            for chunk in dg_connection:
+                if chunk.type == "Result":
+                    print(chunk.channel.alternatives[0].transcript)
+                    return chunk.channel.alternatives[0].transcript
+        except Exception as e:
+            print(f"⚠️  Deepgram transcription error: {e}")
         return None
     def voice_call(
         self,
