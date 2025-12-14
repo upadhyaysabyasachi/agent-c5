@@ -10,6 +10,9 @@ from groq import Groq
 from dotenv import load_dotenv
 from rich.console import Console
 from rich.panel import Panel
+import smtplib
+from email.message import EmailMessage
+from typing import Dict, Any
 
 # Import voice tool
 from tools.voice_tool import VoiceTool
@@ -277,15 +280,31 @@ class EngagementEngine:
             Send result
         """
         # Placeholder - in production, integrate with SendGrid, Mailgun, etc.
-        console.print(f"[cyan]📧 Email prepared for {email_data.get('lead_id')}[/cyan]")
-        console.print(f"   Subject: {email_data.get('subject')}")
-        console.print(f"   Status: {email_data.get('status')}")
-        
-        return {
-            "status": "sent" if email_data.get('status') != 'error' else "failed",
-            "email_id": email_data.get('lead_id'),
-            "message": "Email sent (mock - integrate with email service)"
-        }
+
+        msg = EmailMessage()
+        msg['From'] = os.getenv('FROM_EMAIL')
+        msg['To'] = email_data.get('recipient_email')
+        msg['Subject'] = email_data.get('subject')
+        msg.set_content(email_data.get('body'))  # Plain text fallback (optional)
+        msg.add_alternative(email_data.get('body'), subtype='html')  # HTML body
+
+        smtp_server = os.getenv('SMTP_SERVER', 'smtp.sendgrid.net')  # Default to SendGrid if desired
+        smtp_port = int(os.getenv('SMTP_PORT', '587'))               # 587 for STARTTLS (recommended)
+        smtp_username = os.getenv('SMTP_USERNAME')                   # e.g., 'apikey' for SendGrid
+        smtp_password = os.getenv('SMTP_PASSWORD')                   # API key or password
+
+        try:
+            with smtplib.SMTP(smtp_server, smtp_port) as server:
+                server.starttls()  # Upgrade to secure connection
+                if smtp_username and smtp_password:
+                    server.login(smtp_username, smtp_password)
+                server.send_message(msg)
+            return {
+                "status": "sent",
+                "message": "Email delivered successfully"
+            }
+        except Exception as e:
+            return {"status": "failed", "error": str(e)}
     
     def _parse_json(self, text: str) -> Dict[str, Any]:
         """Parse JSON from LLM response."""
